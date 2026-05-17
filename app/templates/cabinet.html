@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кабинет {{ user.first_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="user-info">
+            <h2>Кабинет пользователя @{{ user.username or user.first_name }}</h2>
+            <p>Telegram ID: {{ user.telegram_id }}</p>
+            <p>Всего записей: {{ contents|length }}</p>
+            <a href="/">← На главную</a>
+        </div>
+
+        <div class="grid">
+            {% for item in contents %}
+            <div class="card">
+                <div class="card-type">{{ item.type|upper }}</div>
+                <div class="card-date">{{ item.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                
+                {% if item.type == 'text' %}
+                    <p>{{ item.content }}</p>
+                {% elif item.type == 'link' %}
+                    <a href="{{ item.content }}" target="_blank">{{ item.content }}</a>
+                {% elif item.type == 'photo' %}
+                    <img class="media" src="{{ url_for('static', filename=item.local_path) }}" alt="Фото">
+                    {% if item.content %}<p>{{ item.content }}</p>{% endif %}
+                {% elif item.type == 'video' %}
+                    <video class="media" controls>
+                        <source src="{{ url_for('static', filename=item.local_path) }}" type="video/mp4">
+                    </video>
+                    {% if item.content %}<p>{{ item.content }}</p>{% endif %}
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="card">Пока нет сохранённого контента. Отправьте что-нибудь боту!</div>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
