@@ -1,0 +1,65 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h3>{{ 'Редактирование' if user else 'Создание' }} пользователя</h3>
+        <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">← Назад</a>
+    </div>
+    
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="telegram_id">Telegram ID</label>
+                <input type="number" class="form-control" id="telegram_id" name="telegram_id" value="{{ user.telegram_id or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="username">Имя пользователя (username)</label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ user.username or '' }}">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="first_name">Имя</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="last_name">Фамилия</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name or '' }}">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="phone">Телефон</label>
+                <input type="text" class="form-control" id="phone" name="phone" value="{{ user.phone or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ user.email or '' }}">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="login">Логин</label>
+                <input type="text" class="form-control" id="login" name="login" value="{{ user.login or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль{{ ' (оставьте пустым, чтобы не менять)' if user else '' }}</label>
+                <input type="password" class="form-control" id="password" name="password" {{ 'required' if not user else '' }}>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{{ 'Сохранить' if user else 'Создать' }}</button>
+            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

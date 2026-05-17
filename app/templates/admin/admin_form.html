@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h3>{{ 'Редактирование' if editing_admin else 'Создание' }} администратора</h3>
+        <a href="{{ url_for('admin_admins') }}" class="btn btn-secondary">← Назад</a>
+    </div>
+    
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="username">Логин</label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ editing_admin.username if editing_admin else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ editing_admin.email if editing_admin else '' }}">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Пароль{{ ' (оставьте пустым, чтобы не менять)' if editing_admin else '' }}</label>
+            <input type="password" class="form-control" id="password" name="password" {{ 'required' if not editing_admin else '' }}>
+        </div>
+        
+        <div class="form-group">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="is_superadmin" name="is_superadmin" {{ 'checked' if editing_admin and editing_admin.is_superadmin else '' }}>
+                <label class="form-check-label" for="is_superadmin">Статус суперадмина</label>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{{ 'Сохранить' if editing_admin else 'Создать' }}</button>
+            <a href="{{ url_for('admin_admins') }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

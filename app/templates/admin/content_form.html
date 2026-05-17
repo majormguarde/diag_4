@@ -1,0 +1,60 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h3>{{ 'Редактирование' if content else 'Создание' }} контента</h3>
+        <a href="{{ url_for('admin_contents') }}" class="btn btn-secondary">← Назад</a>
+    </div>
+    
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_id">Пользователь</label>
+                <select class="form-control" id="user_id" name="user_id" required>
+                    <option value="">Выберите пользователя</option>
+                    {% for user in users %}
+                    <option value="{{ user.id }}" {{ 'selected' if content and content.user_id == user.id else '' }}>
+                        {{ user.first_name }} {{ user.last_name or '' }} ({{ user.telegram_id }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="type">Тип контента</label>
+                <select class="form-control" id="type" name="type" required>
+                    <option value="text" {{ 'selected' if content and content.type == 'text' else '' }}>Текст</option>
+                    <option value="photo" {{ 'selected' if content and content.type == 'photo' else '' }}>Фото</option>
+                    <option value="video" {{ 'selected' if content and content.type == 'video' else '' }}>Видео</option>
+                    <option value="link" {{ 'selected' if content and content.type == 'link' else '' }}>Ссылка</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="content">Содержимое</label>
+            <textarea class="form-control" id="content" name="content" rows="5">{{ content.content if content else '' }}</textarea>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="file_id">File ID (Telegram)</label>
+                <input type="text" class="form-control" id="file_id" name="file_id" value="{{ content.file_id if content else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="local_path">Локальный путь</label>
+                <input type="text" class="form-control" id="local_path" name="local_path" value="{{ content.local_path if content else '' }}">
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{{ 'Сохранить' if content else 'Создать' }}</button>
+            <a href="{{ url_for('admin_contents') }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
