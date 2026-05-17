@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, flash, session
+from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.models import User, Content, Admin
@@ -447,3 +447,60 @@ def register_admin_routes(app):
         
         flash('Администратор успешно удален!', 'success')
         return redirect(url_for('admin_admins'))
+    
+    # ==================== API эндпоинты для автообновления ====================
+    
+    @app.route('/admin/api/users')
+    def admin_api_users():
+        """API для получения списка пользователей (JSON)"""
+        if 'admin_id' not in session:
+            return jsonify({'error': 'Unauthorized'}), 401
+        
+        users = User.query.order_by(User.registered_at.desc()).all()
+        result = []
+        for user in users:
+            result.append({
+                'id': user.id,
+                'telegram_id': user.telegram_id or '-',
+                'name': f"{user.first_name or ''} {user.last_name or ''}".strip(),
+                'login': user.login or '-',
+                'email': user.email or '-',
+                'phone': user.phone or '-',
+                'registered_at': user.registered_at.strftime('%d.%m.%Y %H:%M') if user.registered_at else '-',
+                'profile_completed': user.profile_completed
+            })
+        return jsonify(result)
+    
+    @app.route('/admin/api/stats')
+    def admin_api_stats():
+        """API для получения статистики (JSON)"""
+        if 'admin_id' not in session:
+            return jsonify({'error': 'Unauthorized'}), 401
+        
+        stats = {
+            'total_users': User.query.count(),
+            'total_contents': Content.query.count(),
+            'total_admins': Admin.query.count(),
+            'total_photos': Content.query.filter_by(type='photo').count(),
+            'total_videos': Content.query.filter_by(type='video').count(),
+            'total_links': Content.query.filter_by(type='link').count()
+        }
+        return jsonify(stats)
+    
+    @app.route('/admin/api/contents')
+    def admin_api_contents():
+        """API для получения списка контента (JSON)"""
+        if 'admin_id' not in session:
+            return jsonify({'error': 'Unauthorized'}), 401
+        
+        contents = Content.query.order_by(Content.created_at.desc()).limit(50).all()
+        result = []
+        for content in contents:
+            result.append({
+                'id': content.id,
+                'user': content.user.first_name if content.user else '-',
+                'type': content.type,
+                'content': content.content[:50] + '...' if content.content and len(content.content) > 50 else (content.content or '-'),
+                'created_at': content.created_at.strftime('%d.%m.%Y %H:%M') if content.created_at else '-'
+            })
+        return jsonify(result)

@@ -2,29 +2,29 @@
 
 {% block content %}
 <div class="cards-grid">
-    <div class="card">
+    <div class="card stat-card" data-stat="total_users">
         <div class="card-title">Всего пользователей</div>
-        <div class="card-value">{{ stats.total_users }}</div>
+        <div class="card-value stat-value">{{ stats.total_users }}</div>
     </div>
-    <div class="card">
+    <div class="card stat-card" data-stat="total_contents">
         <div class="card-title">Всего записей</div>
-        <div class="card-value">{{ stats.total_contents }}</div>
+        <div class="card-value stat-value">{{ stats.total_contents }}</div>
     </div>
-    <div class="card">
+    <div class="card stat-card" data-stat="total_admins">
         <div class="card-title">Администраторы</div>
-        <div class="card-value">{{ stats.total_admins }}</div>
+        <div class="card-value stat-value">{{ stats.total_admins }}</div>
     </div>
-    <div class="card">
+    <div class="card stat-card" data-stat="total_photos">
         <div class="card-title">Фото</div>
-        <div class="card-value success">{{ stats.total_photos }}</div>
+        <div class="card-value stat-value success">{{ stats.total_photos }}</div>
     </div>
-    <div class="card">
+    <div class="card stat-card" data-stat="total_videos">
         <div class="card-title">Видео</div>
-        <div class="card-value success">{{ stats.total_videos }}</div>
+        <div class="card-value stat-value success">{{ stats.total_videos }}</div>
     </div>
-    <div class="card">
+    <div class="card stat-card" data-stat="total_links">
         <div class="card-title">Ссылки</div>
-        <div class="card-value success">{{ stats.total_links }}</div>
+        <div class="card-value stat-value success">{{ stats.total_links }}</div>
     </div>
 </div>
 

@@ -148,6 +148,33 @@ body {
     color: var(--text-primary);
 }
 
+/* Auto-refresh controls */
+.auto-refresh-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+#last-update {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.auto-refresh-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.auto-refresh-toggle input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: var(--accent);
+}
+
 .header-info .user-info .role {
     font-size: 12px;
     color: var(--text-secondary);

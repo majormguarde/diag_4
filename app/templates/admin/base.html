@@ -72,10 +72,189 @@
                     <div class="username">{{ admin.username }}</div>
                     <div class="role">{% if admin.is_superadmin %}Суперадминистратор{% else %}Администратор{% endif %}</div>
                 </div>
+                <div class="auto-refresh-info">
+                    <span id="last-update">Обновлено: только что</span>
+                    <label class="auto-refresh-toggle">
+                        <input type="checkbox" id="auto-refresh" checked> Автообновление
+                    </label>
+                </div>
             </div>
         </header>
 
         {% block content %}{% endblock %}
     </main>
+
+    <script>
+        // Автоматическое обновление данных
+        const AUTO_REFRESH_INTERVAL = 5000; // 5 секунд
+        let autoRefreshEnabled = true;
+        let refreshInterval = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('auto-refresh');
+            if (toggle) {
+                toggle.addEventListener('change', function() {
+                    autoRefreshEnabled = this.checked;
+                    if (autoRefreshEnabled) {
+                        startAutoRefresh();
+                    } else {
+                        stopAutoRefresh();
+                    }
+                });
+                startAutoRefresh();
+            }
+        });
+
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(refreshData, AUTO_REFRESH_INTERVAL);
+        }
+
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+        }
+
+        function updateLastRefresh() {
+            const el = document.getElementById('last-update');
+            if (el) {
+                const now = new Date();
+                el.textContent = 'Обновлено: ' + now.toLocaleTimeString('ru-RU');
+            }
+        }
+
+        function refreshData() {
+            if (!autoRefreshEnabled) return;
+            
+            const currentPage = window.location.pathname;
+            
+            if (currentPage === '/admin/users') {
+                refreshUsers();
+            } else if (currentPage === '/admin') {
+                refreshStats();
+            } else if (currentPage === '/admin/contents') {
+                refreshContents();
+            }
+        }
+
+        async function refreshUsers() {
+            try {
+                const response = await fetch('/admin/api/users');
+                if (response.ok) {
+                    const users = await response.json();
+                    updateUsersTable(users);
+                    updateLastRefresh();
+                }
+            } catch (error) {
+                console.error('Error refreshing users:', error);
+            }
+        }
+
+        function updateUsersTable(users) {
+            const tbody = document.querySelector('.table tbody');
+            if (!tbody) return;
+            
+            let html = '';
+            users.forEach(user => {
+                html += `<tr>
+                    <td>${user.telegram_id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.login}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone}</td>
+                    <td>${user.registered_at}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="/admin/users/edit/${user.id}" class="btn btn-sm btn-warning">✏️</a>
+                            <form action="/admin/users/delete/${user.id}" method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить пользователя?');">
+                                <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            
+            if (!html) {
+                html = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Нет пользователей</td></tr>';
+            }
+            
+            tbody.innerHTML = html;
+        }
+
+        async function refreshStats() {
+            try {
+                const response = await fetch('/admin/api/stats');
+                if (response.ok) {
+                    const stats = await response.json();
+                    updateStatsDisplay(stats);
+                    updateLastRefresh();
+                }
+            } catch (error) {
+                console.error('Error refreshing stats:', error);
+            }
+        }
+
+        function updateStatsDisplay(stats) {
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                const key = card.dataset.stat;
+                if (key && stats[key] !== undefined) {
+                    const valueEl = card.querySelector('.stat-value');
+                    if (valueEl) valueEl.textContent = stats[key];
+                }
+            });
+        }
+
+        async function refreshContents() {
+            try {
+                const response = await fetch('/admin/api/contents');
+                if (response.ok) {
+                    const contents = await response.json();
+                    updateContentsTable(contents);
+                    updateLastRefresh();
+                }
+            } catch (error) {
+                console.error('Error refreshing contents:', error);
+            }
+        }
+
+        function updateContentsTable(contents) {
+            const tbody = document.querySelector('.table tbody');
+            if (!tbody) return;
+            
+            let html = '';
+            contents.forEach(content => {
+                const typeLabels = {
+                    'text': '📝 Текст',
+                    'photo': '📷 Фото',
+                    'video': '🎥 Видео',
+                    'link': '🔗 Ссылка'
+                };
+                html += `<tr>
+                    <td>${content.id}</td>
+                    <td>${content.user}</td>
+                    <td>${typeLabels[content.type] || content.type}</td>
+                    <td>${content.content}</td>
+                    <td>${content.created_at}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="/admin/contents/edit/${content.id}" class="btn btn-sm btn-warning">✏️</a>
+                            <form action="/admin/contents/delete/${content.id}" method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить контент?');">
+                                <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            
+            if (!html) {
+                html = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Нет контента</td></tr>';
+            }
+            
+            tbody.innerHTML = html;
+        }
+    </script>
 </body>
 </html>

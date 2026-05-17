@@ -1,4 +1,5 @@
-from flask import render_template, request, redirect, url_for, flash
+import os
+from flask import render_template, request, redirect, url_for, flash, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.models import User, Content
@@ -104,3 +105,9 @@ def register_routes(app):
             return render_template('login.html', error="Неверный логин или пароль")
         
         return redirect(url_for('cabinet', user_id=user.telegram_id))
+    
+    @app.route('/examples/<filename>')
+    def examples(filename):
+        """Маршрут для скачивания файлов примеров из папки _examples"""
+        examples_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '_examples')
+        return send_from_directory(examples_dir, filename, as_attachment=True)
