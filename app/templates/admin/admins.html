@@ -1,0 +1,39 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="table-container">
+    <div class="table-header">
+        <h3>Администраторы</h3>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Имя</th>
+                <th scope="col">Email</th>
+                <th scope="col">Статус</th>
+                <th scope="col">Создан</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for admin in admins %}
+            <tr>
+                <td>{{ admin.id }}</td>
+                <td>{{ admin.username }}</td>
+                <td>{{ admin.email or '-' }}</td>
+                <td>
+                    <span class="status {% if admin.is_superadmin %}active{% else %}pending{% endif %}">
+                        {% if admin.is_superadmin %}Суперадмин{% else %}Админ{% endif %}
+                    </span>
+                </td>
+                <td>{{ admin.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px;">Нет администраторов</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

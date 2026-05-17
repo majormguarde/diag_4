@@ -44,12 +44,18 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             db.session.commit()
             await update.message.reply_text(
                 f"Добро пожаловать, {first_name}! Вы зарегистрированы.\n"
-                "Отправляйте мне текст, фото, видео или ссылки.\n"
-                "Команда /random – получить случайный контент из вашего кабинета.\n"
-                "Команда /myid – узнать свой Telegram ID для входа в веб-кабинет."
+                "Пожалуйста, заполните персональные данные для завершения регистрации.\n"
+                "Перейдите по ссылке: http://localhost:5000/profile?user_id={}\n"
+                "Если ссылка не работает, откройте сайт и укажите ваш Telegram ID.".format(telegram_id)
             )
         else:
-            await update.message.reply_text(f"С возвращением, {first_name}! Используйте /random.")
+            if not db_user.profile_completed:
+                await update.message.reply_text(
+                    f"{first_name}, пожалуйста, заполните персональные данные для завершения регистрации.\n"
+                    "Перейдите по ссылке: http://localhost:5000/profile?user_id={}".format(telegram_id)
+                )
+            else:
+                await update.message.reply_text(f"С возвращением, {first_name}! Используйте /random.")
 
 async def my_id_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
@@ -158,8 +164,23 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("✅ Видео сохранено! Используйте /random.")
 
 def start_polling():
+    import os
+    import signal
+    
+    # Создаем файл с PID текущего процесса в корневой директории проекта
+    project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    pid_file = os.path.join(project_dir, 'bot.pid')
+    with open(pid_file, 'w') as f:
+        f.write(str(os.getpid()))
+    
     app = get_bot_app()
     app.run_polling()
+    
+    # Удаляем файл PID при завершении
+    try:
+        os.remove(pid_file)
+    except:
+        pass
 
 def run_bot_thread(flask_app):
     global _flask_app, _bot_thread

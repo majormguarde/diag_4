@@ -1,0 +1,47 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="table-container">
+    <div class="table-header">
+        <h3>Контент</h3>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Тип</th>
+                <th scope="col">Пользователь</th>
+                <th scope="col">Содержимое</th>
+                <th scope="col">Создано</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for content in contents %}
+            <tr>
+                <td>{{ content.id }}</td>
+                <td>
+                    <span class="status {% if content.type == 'photo' %}active{% elif content.type == 'video' %}active{% else %}pending{% endif %}">
+                        {{ content.type|upper }}
+                    </span>
+                </td>
+                <td>{{ content.user.first_name }} ({{ content.user.telegram_id }})</td>
+                <td>
+                    {% if content.type == 'text' or content.type == 'link' %}
+                    {{ content.content[:50] }}{% if content.content|length > 50 %}...{% endif %}
+                    {% elif content.type == 'photo' %}
+                    Фото
+                    {% elif content.type == 'video' %}
+                    Видео
+                    {% endif %}
+                </td>
+                <td>{{ content.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px;">Нет контента</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

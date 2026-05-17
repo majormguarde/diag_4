@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from config import Config
+import os
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -13,10 +14,8 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     
-    from app import routes, models, bot
+    from app import routes, models, bot, admin_routes
     routes.register_routes(app)
-    
-    # Запускаем бота в фоновом потоке (polling)
-    bot.run_bot_thread(app)
+    admin_routes.register_admin_routes(app)
     
     return app
